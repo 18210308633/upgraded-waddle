@@ -1,0 +1,20 @@
+<%@page import="com.hxbx.utils.ExcelUtil"%>
+<%@page contentType="text/html;charset=GBK"%>
+<%@page import="java.util.*,
+                com.fsm.config.*,
+                java.io.*"%>
+<%
+        try {          
+            String strgraphURL =(String)session.getAttribute("filename");
+            String strgraphURL1 =(String)session.getAttribute("filename1");
+            String strTitle =(String)session.getAttribute("strTitle");
+            ExcelUtil.reportGraph(request, response,strgraphURL,strgraphURL1,strTitle);
+            out.clear();  
+            out = pageContext.pushBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    	
+ 
+                
+%>
