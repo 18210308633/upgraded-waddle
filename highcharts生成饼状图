@@ -1,0 +1,447 @@
+<%@page import="com.fsm.db.DBService"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%
+DBService dbservice = new DBService();
+String strTitle1 = request.getParameter("TName");
+strTitle1 = dbservice.postGBK(strTitle1); 
+if(strTitle1 !=null&&strTitle1.length()>0){
+	session.setAttribute("strTitle", strTitle1);
+}
+if(strTitle1==null||strTitle1.length()==0){
+	strTitle1 = (String)session.getAttribute("strTitle");
+}
+String strAppealBeginDate = request.getParameter("AppealBeginDate");
+String strAppealEndDate = request.getParameter("AppealEndDate");
+if(strAppealBeginDate !=null&&strAppealEndDate !=null){
+	session.setAttribute("AppealBeginDate", strAppealBeginDate);
+	session.setAttribute("AppealEndDate", strAppealEndDate);	
+}
+if(strAppealBeginDate ==null&&strAppealEndDate ==null){
+	strAppealBeginDate = (String)session.getAttribute("AppealBeginDate");
+	strAppealEndDate = (String)session.getAttribute("AppealEndDate");
+	
+}
+String strAppealBeginDate1=strAppealBeginDate.substring(0, 4)+"-"+"01"+"-"+"01";
+
+//当前月分投诉渠道来源--承保
+String strUnderWrite =dbservice.getString("SELECT count(x.TID) FROM X_APPEAL x WHERE reasonid1='003' and x.AppealDate >= '"+strAppealBeginDate+"' and x.AppealDate <= '"+strAppealEndDate+"'");
+//当前月分投诉渠道来源--理赔
+String strClaims= dbservice.getString("SELECT count(x.TID) FROM X_APPEAL x WHERE reasonid1='002' and x.AppealDate >= '"+strAppealBeginDate+"' and x.AppealDate <= '"+strAppealEndDate+"'");
+//当前月分投诉渠道来源--定损
+String strFee =dbservice.getString("SELECT count(x.TID) FROM X_APPEAL x WHERE reasonid2='002002' and x.AppealDate >= '"+strAppealBeginDate+"' and x.AppealDate <= '"+strAppealEndDate+"'");
+//当前月分投诉渠道来源-收单
+String strCollectSingle= dbservice.getString("SELECT count(x.TID) FROM X_APPEAL x WHERE reasonid2='002003' and x.AppealDate >= '"+strAppealBeginDate+"' and x.AppealDate <= '"+strAppealEndDate+"'");
+//当前月分投诉渠道来源--查勘
+String strSurvey =dbservice.getString("SELECT count(x.TID) FROM X_APPEAL x WHERE reasonid2='002001' and x.AppealDate >= '"+strAppealBeginDate+"' and x.AppealDate <= '"+strAppealEndDate+"'");
+//当前月分投诉渠道来源--其他
+String strOther= dbservice.getString("SELECT count(x.TID) FROM X_APPEAL x WHERE reasonid2 not in ('002001','002002','002003') and x.AppealDate >= '"+strAppealBeginDate+"' and x.AppealDate <= '"+strAppealEndDate+"'");
+
+
+//1月份到当前月分投诉渠道来源--承保
+String strUnderWrite1 =dbservice.getString("SELECT count(x.TID) FROM X_APPEAL x WHERE reasonid1='003' and x.AppealDate >= '"+strAppealBeginDate1+"' and x.AppealDate <= '"+strAppealEndDate+"'");
+//1月份到当前月分投诉渠道来源--理赔
+String strClaims1= dbservice.getString("SELECT count(x.TID) FROM X_APPEAL x WHERE reasonid1='002' and x.AppealDate >= '"+strAppealBeginDate1+"' and x.AppealDate <= '"+strAppealEndDate+"'");
+//1月份到当前月分投诉渠道来源--定损
+String strFee1 =dbservice.getString("SELECT count(x.TID) FROM X_APPEAL x WHERE reasonid2='002002' and x.AppealDate >= '"+strAppealBeginDate1+"' and x.AppealDate <= '"+strAppealEndDate+"'");
+//1月份到当前月分投诉渠道来源-收单
+String strCollectSingle1= dbservice.getString("SELECT count(x.TID) FROM X_APPEAL x WHERE reasonid2='002003' and x.AppealDate >= '"+strAppealBeginDate1+"' and x.AppealDate <= '"+strAppealEndDate+"'");
+//1月份到当前月分投诉渠道来源--查勘
+String strSurvey1 =dbservice.getString("SELECT count(x.TID) FROM X_APPEAL x WHERE reasonid2='002001' and x.AppealDate >= '"+strAppealBeginDate1+"' and x.AppealDate <= '"+strAppealEndDate+"'");
+//1月份到当前月分投诉渠道来源--其他
+String strOther1= dbservice.getString("SELECT count(x.TID) FROM X_APPEAL x WHERE reasonid2 not in ('002001','002002','002003') and x.AppealDate >= '"+strAppealBeginDate1+"' and x.AppealDate <= '"+strAppealEndDate+"'");
+                
+%>
+<html>
+<head>
+<meta charset="UTF-8">
+<title><%=strTitle1%></title>
+<link href="../../windows7/css/dzda.css" rel="stylesheet" type="text/css" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script type="text/javascript" src="../js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="../js/highcharts.js"></script>
+<script type="text/javascript" src="../js/exporting.js"></script>
+<script type="text/javascript" src="../js/highcharts-zh_CN.js"></script>
+<script type="text/javascript" src="../js/sand-signika.js"></script>
+</head>
+    <body style="background-color: #f3f5fd">
+    <table style="width: 100%;height: 100%">
+    <tr>
+        <div id="container01" style="width:400px;height:350px;margin-top: 1%;float: left;"></div>
+        <div id="container" style="width:400px;height:350px;margin-top: 1%;margin-left: 5%;float: left;"></div>
+        <div id="container02" style="width:400px;height:350px;margin-top: 1%;float: right;"></div>
+        </tr>
+        <br>
+	<tr>
+	<div style="height: 10px;"></div>
+</tr>
+    <tr>
+        <div id="container11" style="width:400px;height:350px;float: left;"></div>
+        <div id="container1" style="width:400px;height:350px;margin-left: 5%;float: left;"></div>
+        <div id="container12" style="width:400px;height:350px;float: right;"></div>
+    </tr>
+    </table>
+        <script>
+
+        $(function () {
+            $('#container').highcharts({
+                chart: {
+                    plotBackgroundColor: "white",//设置绘图区背景色
+                    plotBorderWidth: null,//设置绘图区高度
+                    plotShadow: true//是否设置阴影
+                },
+                title: {
+                    text: <%=strAppealBeginDate.substring(6, 7)%>+'月保险消费投诉环节分类',
+                    style:{
+                  	  color: "#000000",
+                  	  fontSize: "20px",
+                  	  fontFamily: "宋体"
+                  	}
+                },
+                credits: {
+                    enabled: false
+                },
+                tooltip: {
+                	formatter: function() {
+                        return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.percentage, 2) +'% ('+
+                                     Highcharts.numberFormat(this.y, 0, ',') +' 个)';
+                     }
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            formatter: function() {
+                                return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.percentage, 2) +'% ('+
+                                Highcharts.numberFormat(this.y, 0, ',') +' 个)';
+                }
+
+                        },
+                        showInLegend: true
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: '浏览器访问量占比',
+                    data: [                      
+                        {
+                            name: '承保',
+                            y: <%=strUnderWrite%>,
+                            sliced: true,
+                            selected: true
+                        },
+                        ['理赔', <%=strClaims%>],                      
+                    ]
+                }]
+            });
+        });
+
+
+        </script>
+<script>
+
+        $(function () {
+            $('#container01').highcharts({
+                chart: {
+                    plotBackgroundColor: "white",//设置绘图区背景色
+                    plotBorderWidth: null,//设置绘图区高度
+                    plotShadow: true//是否设置阴影
+                },
+                title: {
+                    text: <%=strAppealBeginDate.substring(6, 7)%>+'月保险消费投诉承保环节分类',
+                    style:{
+                  	  color: "#000000",
+                  	  fontSize: "20px",
+                  	  fontFamily: "宋体"
+                  	}
+                },
+                credits: {
+                    enabled: false
+                },
+                tooltip: {
+                	formatter: function() {
+                        return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.percentage, 2) +'% ('+
+                                     Highcharts.numberFormat(this.y, 0, ',') +' 个)';
+                     }
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            formatter: function() {
+                                return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.percentage, 2) +'% ('+
+                                Highcharts.numberFormat(this.y, 0, ',') +' 个)';
+                }
+
+                        },
+                        showInLegend: true
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: '浏览器访问量占比',
+                    data: [                      
+                        {
+                            name: '承保',
+                            y: <%=strUnderWrite%>,
+                            sliced: true,
+                            selected: true
+                        },
+                        ['理赔', <%=strClaims%>],                      
+                    ]
+                }]
+            });
+        });
+
+
+        </script>
+        <script>
+
+        $(function () {
+            $('#container02').highcharts({
+                chart: {
+                    plotBackgroundColor: "white",//设置绘图区背景色
+                    plotBorderWidth: null,//设置绘图区高度
+                    plotShadow: true//是否设置阴影
+                },
+                title: {
+                    text: <%=strAppealBeginDate.substring(6, 7)%>+'月保险消费投诉理赔环节分类',
+                    style:{
+                  	  color: "#000000",
+                  	  fontSize: "20px",
+                  	  fontFamily: "宋体"
+                  	}
+                },
+                credits: {
+                    enabled: false
+                },
+                tooltip: {
+                	formatter: function() {
+                        return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.percentage, 2) +'% ('+
+                                     Highcharts.numberFormat(this.y, 0, ',') +' 个)';
+                     }
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            formatter: function() {
+                                return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.percentage, 2) +'% ('+
+                                Highcharts.numberFormat(this.y, 0, ',') +' 个)';
+                }
+
+                        },
+                        showInLegend: true
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: '浏览器访问量占比',
+                    data: [                      
+                        {
+                            name: '定损',
+                            y: <%=strFee%>,
+                            sliced: true,
+                            selected: true
+                        },
+                        ['收单', <%=strCollectSingle%>],
+                        ['查勘', <%=strSurvey%>],
+                        ['其他', <%=strOther%>],
+                    ]
+                }]
+            });
+        });
+
+
+        </script>
+        
+        
+        
+        
+         <script>
+        $(function () {
+            $('#container1').highcharts({
+                chart: {
+                    plotBackgroundColor: "white",//设置绘图区背景色
+                    plotBorderWidth: null,//设置绘图区高度
+                    plotShadow: true//是否设置阴影
+                },
+                title: {
+                    text: '1月'+'-'+<%=strAppealBeginDate.substring(6, 7)%>+'月保险消费投诉环节分类',
+                    style:{
+                  	  color: "#000000",
+                  	  fontSize: "20px",
+                  	  fontFamily: "宋体"
+                  	}
+                },
+                credits: {
+                    enabled: false
+                },
+                tooltip: {
+                	formatter: function() {
+                        return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.percentage, 2) +'% ('+
+                                     Highcharts.numberFormat(this.y, 0, ',') +' 个)';
+                     }
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            formatter: function() {
+                                return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.percentage, 2) +'% ('+
+                                Highcharts.numberFormat(this.y, 0, ',') +' 个)';
+                }
+
+                        },
+                        showInLegend: true
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: '浏览器访问量占比',
+                    data: [                      
+                        {
+                            name: '承保',
+                            y: <%=strUnderWrite1%>,
+                            sliced: true,
+                            selected: true
+                        },
+                        ['理赔', <%=strClaims1%>],                      
+                    ]
+                }]
+            });
+        });
+
+
+        </script>
+<script>
+
+        $(function () {
+            $('#container11').highcharts({
+                chart: {
+                    plotBackgroundColor: "white",//设置绘图区背景色
+                    plotBorderWidth: null,//设置绘图区高度
+                    plotShadow: true//是否设置阴影
+                },
+                title: {
+                    text: '1月'+'-'+<%=strAppealBeginDate.substring(6, 7)%>+'月保险消费投诉承保环节分类',
+                    style:{
+                  	  color: "#000000",
+                  	  fontSize: "20px",
+                  	  fontFamily: "宋体"
+                  	}
+                },
+                credits: {
+                    enabled: false
+                },
+                tooltip: {
+                	formatter: function() {
+                        return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.percentage, 2) +'% ('+
+                                     Highcharts.numberFormat(this.y, 0, ',') +' 个)';
+                     }
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            formatter: function() {
+                                return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.percentage, 2) +'% ('+
+                                Highcharts.numberFormat(this.y, 0, ',') +' 个)';
+                }
+
+                        },
+                        showInLegend: true
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: '浏览器访问量占比',
+                    data: [                      
+                        {
+                            name: '承保',
+                            y: <%=strUnderWrite1%>,
+                            sliced: true,
+                            selected: true
+                        },
+                        ['理赔', <%=strClaims1%>],                      
+                    ]
+                }]
+            });
+        });
+
+
+        </script>
+        <script>
+
+        $(function () {
+            $('#container12').highcharts({
+                chart: {
+                    plotBackgroundColor: "white",//设置绘图区背景色
+                    plotBorderWidth: null,//设置绘图区高度
+                    plotShadow: true//是否设置阴影
+                },
+                title: {
+                    text: '1月'+'-'+<%=strAppealBeginDate.substring(6, 7)%>+'月保险消费投诉理赔环节分类',
+                    style:{
+                  	  color: "#000000",
+                  	  fontSize: "20px",
+                  	  fontFamily: "宋体"
+                  	}
+                },
+                credits: {
+                    enabled: false
+                },
+                tooltip: {
+                	formatter: function() {
+                        return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.percentage, 2) +'% ('+
+                                     Highcharts.numberFormat(this.y, 0, ',') +' 个)';
+                     }
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            formatter: function() {
+                                return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.percentage, 2) +'% ('+
+                                Highcharts.numberFormat(this.y, 0, ',') +' 个)';
+                }
+
+                        },
+                        showInLegend: true
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: '浏览器访问量占比',
+                    data: [                      
+                        {
+                            name: '定损',
+                            y: <%=strFee1%>,
+                            sliced: true,
+                            selected: true
+                        },
+                        ['收单', <%=strCollectSingle1%>],
+                        ['查勘', <%=strSurvey1%>],
+                        ['其他', <%=strOther1%>],
+                    ]
+                }]
+            });
+        });
+
+
+        </script>
+    </body>
+
+</html>
