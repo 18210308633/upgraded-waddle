@@ -1,0 +1,64 @@
+//导出图形报表
+	 public static void reportGraph(HttpServletRequest request,HttpServletResponse response,String strgraphURL,String strgraphURL1,String strTitle){
+		 OutputStream os=null;
+		 FileOutputStream fileOut = null;
+		 BufferedImage bufferImg = null;
+		 BufferedImage bufferImg1 = null;//图片二 
+		 String strurl=strgraphURL;
+		  try {
+			// 先把读进来的图片放到一个ByteArrayOutputStream中，以便产生ByteArray
+			ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
+			ByteArrayOutputStream byteArrayOut1 = new ByteArrayOutputStream();
+			bufferImg = ImageIO.read(new File(strurl));
+			bufferImg1 = ImageIO.read(new File(strgraphURL1));  
+			ImageIO.write(bufferImg, "png", byteArrayOut);
+			ImageIO.write(bufferImg1, "png", byteArrayOut1);
+			   // 创建一个工作薄
+			   HSSFWorkbook wb = new HSSFWorkbook();
+			   HSSFSheet sheet1 = wb.createSheet("按保险消费投诉环节分类");
+			   HSSFPatriarch patriarch = sheet1.createDrawingPatriarch();
+			   /** 
+	             * 该构造函数有8个参数 
+	             * 前四个参数是控制图片在单元格的位置，分别是图片距离单元格left，top，right，bottom的像素距离 
+	             * 后四个参数，前连个表示图片左上角所在的cellNum和 rowNum，后天个参数对应的表示图片右下角所在的cellNum和 rowNum， 
+	             * excel中的cellNum和rowNum的index都是从0开始的 
+	             *  
+	             */
+			   HSSFClientAnchor anchor = new HSSFClientAnchor(0, 0, 512, 255,
+			     (short) 2, 2, (short) 10, 20);
+			    //图片二导出到单元格C3到E5中，且图片的left和top距离边框0  
+	            HSSFClientAnchor anchor1 = new HSSFClientAnchor(0, 0, 512, 255,  
+	                    (short) 10, 2, (short) 16, 20);
+			   anchor.setAnchorType(2);
+			   // 插入图片
+			   patriarch.createPicture(anchor, wb.addPicture(byteArrayOut
+			     .toByteArray(), HSSFWorkbook.PICTURE_TYPE_JPEG)).resize(0.8);
+			   patriarch.createPicture(anchor1, wb.addPicture(byteArrayOut1  
+	                    .toByteArray(), HSSFWorkbook.PICTURE_TYPE_JPEG));
+			   String fileName = new String(strTitle.getBytes("gb2312"), "ISO8859-1");
+		        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			   response.setContentType("application/x-download;charset=utf-8");
+		        response.addHeader("Content-Disposition", "attachment;filename="
+		                + fileName + ".xls");
+		        os= new BufferedOutputStream(response.getOutputStream()); 
+			   //fileOut = new FileOutputStream("c://按保险消费投诉环节分类.xls");
+			   // 写入excel文件
+			   wb.write(os);
+			   os.close();
+		  } catch (IOException io) {
+			   io.printStackTrace();
+			   System.out.println("io erorr : " + io.getMessage());
+			  } finally {
+				  if (os != null) {
+					  try {
+						  os.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+			  }
+	 }
+	 
+	 
+	 
+}
